@@ -1,63 +1,88 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+const DELAY = 1000;
 
-const choosenDate = null;
+const startButton = document.querySelector('[data-start]');
+const inputPicker = document.querySelector('#datetime-picker');
+
+startButton.disabled = true;
+startButton.style.borderRadius = '50px';
+startButton.style.backgroundColor = 'yellow';
+startButton.style.color = 'black';
+startButton.style.width = '50px';
+startButton.style.height = '50px';
+startButton.style.marginLeft = '20px';
+
+const refs = {
+  timerDivEl: document.querySelector('.timer'),
+  fieldDivEl: document.querySelectorAll('.timer > div'),
+  timerValue: document.querySelectorAll('.value'),
+  daysEl: document.querySelector('[data-days]'),
+  hoursEl: document.querySelector('[data-hours]'),
+  minutesEl: document.querySelector('[data-minutes]'),
+  secondsEl: document.querySelector('[data-seconds]'),
+};
+refs.timerDivEl.style.display = 'flex';
+refs.timerDivEl.style.width = '100px';
+refs.fieldDivEl.forEach(element => {
+  element.style.marginRight = '15px';
+});
+refs.timerValue.forEach(element => {
+  element.style.display = 'block';
+  element.style.fontSize = '38px';
+  element.style.textAlign = 'center';
+  element.style.color = 'blue';
+});
 
 const options = {
   enableTime: true,
   time_24hr: true,
   defaultDate: new Date(),
   minuteIncrement: 1,
+  isActive: false,
+  intervalId: null,
   onClose(selectedDates, dateStr) {
     if (selectedDates[0] < Date.now()) {
       window.alert('Please choose a date in the future');
       startButton.disabled = true;
     } else {
-      convertMs(selectedDates[0]);
-      // console.log();
-      choosenDate = Date.now(convertMs(selectedDates[0]));
       startButton.disabled = false;
+      const choosenDate = selectedDates[0];
+
+      startButton.addEventListener('click', () => {
+        if (this.isActive) {
+          return;
+        }
+        this.isActive = true;
+        this.intervalId = setInterval(() => {
+          const currentTime = Date.now();
+          const deltaTime = choosenDate - currentTime;
+          const time = convertMs(deltaTime);
+          if (deltaTime < 0) {
+            clearInterval(this.intervalId);
+            this.isActive = false;
+            return;
+          }
+          console.log(time);
+          updateTimerOnScreen(time);
+        }, DELAY);
+      });
     }
   },
 };
-const startButton = document.querySelector('[data-start]');
-const inputPicker = document.querySelector('#datetime-picker');
-const refs = {
-  daysEl: document.querySelector('[data-days]'),
-  hoursEl: document.querySelector('[data-hours]'),
-  minutesEl: document.querySelector('[data-minutes]'),
-  secondsEl: document.querySelector('[data-seconds]'),
-};
+
 flatpickr(inputPicker, options);
-
-startButton.disabled = true;
-
-startButton.addEventListener('click', onButtonClick);
-const DELAY = 1000;
-// // const choosenDate = convertMs(onClose(selectedDates[0]));
-// console.log(choosenDate);
-
-function onButtonClick() {
-  const startDate = options.defaultDate;
-
-  setInterval(() => {
-    const currentTime = Date.now();
-    const deltaTime = startDate - currentTime;
-    const time = convertMs(deltaTime);
-    // const { days, hours, minutes, seconds } = convertMs(вібранное время - текущее время);
-  }, DELAY);
-}
 
 function addLeadingZero(value) {
   return String(value).padStart(2, '0');
 }
 
-// function updateTimerOnScreen({ days, hours, minutes, seconds }) {
-//   refs.daysEl.textContent = `${days}`;
-//   refs.hoursEl.textContent = `${hours}`;
-//   refs.minutesEl.textContent = `${minutes}`;
-//   refs.secondsEl.textContent = `${seconds}`;
-// }
+function updateTimerOnScreen({ days, hours, minutes, seconds }) {
+  refs.daysEl.textContent = `${days}`;
+  refs.hoursEl.textContent = `${hours}`;
+  refs.minutesEl.textContent = `${minutes}`;
+  refs.secondsEl.textContent = `${seconds}`;
+}
 
 function convertMs(ms) {
   // Number of milliseconds per unit of time
