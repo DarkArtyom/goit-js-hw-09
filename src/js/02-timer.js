@@ -45,9 +45,11 @@ const options = {
   intervalId: null,
   onClose(selectedDates, dateStr) {
     if (selectedDates[0] < Date.now()) {
-      Notiflix.Notify.failure('Please choose a date in the future');
+      Notiflix.Notify.failure('Please, choose a future date');
+      startButton.style.backgroundColor = 'yellow';
       startButton.disabled = true;
     } else {
+      startButton.style.backgroundColor = 'green';
       Notiflix.Notify.success('Welcome to timer');
       startButton.disabled = false;
       const choosenDate = selectedDates[0];
