@@ -9,62 +9,46 @@ form.addEventListener('submit', onSubmitForm);
 
 function onSubmitForm(evt) {
   evt.preventDefault();
-  const position = stepEl.value;
-  const delay = delayEl.value;
-  const amount = amountEl.value;
-
-  console.log(`position ${position}, delay: ${delay}, amount ${amount}`);
-
-  createPromise(position, delay);
+  let delayStepForm = Number(stepEl.value);
+  let firstDelayForm = Number(delayEl.value);
+  const amountForm = Number(amountEl.value);
+  if (delayStepForm >= 0 && firstDelayForm >= 0 && amountForm >= 0) {
+    setTimeout(() => {
+      for (let i = 0; i < amountForm; i += 1) {
+        console.log(`i ${i}, firstDelayForm: ${firstDelayForm} `);
+        updatePromise(i + 1, firstDelayForm);
+        firstDelayForm = firstDelayForm + delayStepForm;
+      }
+    }),
+      firstDelayForm;
+  } else {
+    Notiflix.Notify.failure('Please fill numbers > 0 ');
+  }
+  form.reset();
 }
 
-function createPromise(position, delay) {
-  return new Promise(resolve => {
-    const shouldResolve = Math.random() > 0.3;
-
+function createPromise(i, delayStepForm) {
+  const DELAY = delayStepForm;
+  const shouldResolve = Math.random() > 0.3;
+  return new Promise((resolve, reject) => {
     setTimeout(() => {
       if (shouldResolve) {
-        resolve(console.log(`✅ Fulfilled`));
+        resolve({ i: i, delayStepForm: delayStepForm });
       } else {
-        position;
+        reject({ i: i, delayStepForm: delayStepForm });
       }
-    }, delay);
+    }, DELAY);
   });
 }
 
-createPromise()
-  .then(({ position, delay }) => {
-    console.log(`✅ Fulfilled promise ${position} in ${delay}ms`);
-  })
-  .catch(({ position, delay }) => {
-    console.log(`❌ Rejected promise ${position} in ${delay}ms`);
-  });
-
-// const makeOrder = dish => {
-//   const DELAY = 1000;
-
-//   return new Promise((resolve, reject) => {
-//     const passed = Math.random() > 0.5;
-
-//     setTimeout(() => {
-//       if (passed) {
-//         resolve(`here your dish`);
-//       }
-//       reject(`sorry, we have no burgers`);
-//     }, DELAY);
-//   });
-// };
-
-// const p = makeOrder(`burger`);
-
-// p.then(onMakeOrderSuccess).catch(onMakeorderError);
-
-// function onMakeOrderSuccess(result) {
-//   console.log(`onMakeOrderSuccess`);
-//   console.log(result);
-// }
-
-// function onMakeorderError(error) {
-//   console.log(`onMakeorderError`);
-//   console.log(error);
-// }
+function updatePromise(x, y) {
+  createPromise(x, y)
+    .then(({ i, delayStepForm }) => {
+      Notiflix.Notify.success(
+        `✅ Fulfilled promise ${i} in ${delayStepForm}ms`
+      );
+    })
+    .catch(({ i, delayStepForm }) => {
+      Notiflix.Notify.failure(`❌ Rejected promise ${i} in ${delayStepForm}ms`);
+    });
+}
