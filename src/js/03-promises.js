@@ -52,3 +52,4 @@ function updatePromise(x, y) {
       Notiflix.Notify.failure(`❌ Rejected promise ${i} in ${delayStepForm}ms`);
     });
 }
+//
